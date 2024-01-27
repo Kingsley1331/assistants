@@ -64,18 +64,10 @@ export async function GET(req) {
 //   return NextResponse.json({ message: "Hello World!" });
 // }
 
-// export async function POST(req) {
-//   const data = await req.json();
-//   return NextResponse.json({ data });
-// }
-
 export async function POST(req) {
   const payload = await req.json();
   console.log("payload ==>", payload);
   let messages;
-  if (!payload) {
-    messages = [{ role: "system", content: "You are a helpful assistant." }];
-  }
 
   if (payload) {
     messages = payload.messages;
@@ -83,16 +75,14 @@ export async function POST(req) {
   }
 
   const completion = await openai.chat.completions.create({
-    messages,
+    messages: [
+      { role: "system", content: "You are a helpful assistant." },
+      ...messages,
+    ],
     // model: "gpt-3.5-turbo-1106",
     model: "gpt-4-1106-preview",
   });
 
-  const response = completion.choices[0]?.message?.content;
-  console.log(response);
-  console.log("choices", completion.choices);
-  const message = completion.choices[0]?.message?.content;
-  console.log("message", message);
   return NextResponse.json({
     messages: [
       ...messages,

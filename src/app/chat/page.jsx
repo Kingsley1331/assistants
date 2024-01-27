@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import axios from "axios";
 
 const Chat = () => {
@@ -18,7 +18,7 @@ const Chat = () => {
           { role: "user", content: [{ type: "text", text: userInput }] },
         ],
       })
-      .then((res: any) => {
+      .then((res) => {
         console.log(res.data);
         setMessages(res.data.messages);
       });
@@ -43,6 +43,11 @@ const Chat = () => {
       />
       <br />
       <button onClick={send}>Send</button>
+      {messages.map((message) => {
+        const { content } = message;
+        const text = typeof content === "string" ? content : content[0]?.text;
+        return <div key={content}>{text}</div>;
+      })}
     </div>
   );
 };
