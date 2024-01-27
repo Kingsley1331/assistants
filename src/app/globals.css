@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@tailwind base; /*html elements*/
+@tailwind components; /*react components*/
+@tailwind utilities; /*custom utilities*/
 
 :root {
   --foreground-rgb: 0, 0, 0;
@@ -18,12 +18,6 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
 }
 
 @layer utilities {
@@ -31,3 +25,13 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer components {
+  .card {
+    width: 200px;
+    height: 200px;
+    background-color: theme("colors.twitter-blue");
+  }
+}
+
+/* https://tailwindcomponents.com/cheatsheet/ */
