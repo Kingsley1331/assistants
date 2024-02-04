@@ -1,68 +1,18 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
+import { Configuration, OpenAIApi } from "openai-edge";
+import { OpenAIStream, StreamingTextResponse } from "ai";
+// import OpenAI from "openai";
 
-const openai = new OpenAI(process.env.OPENAI_API_KEY);
-console.log("OPENAI_API_KEY", process.env.OPENAI_API_KEY);
+// const openai = new OpenAI(process.env.OPENAI_API_KEY);
+// console.log("OPENAI_API_KEY", process.env.OPENAI_API_KEY);
 
-async function chat(req, res, payload) {
-  // return [...messages, ...completion.choices.map((choice) => choice.message)];
-  // if (payload) {
-  //   let sumOfTextStream = "";
-  //   let textStream = "";
-  //   for await (const chunk of responseText) {
-  //     textStream = chunk.choices[0]?.delta?.content || "";
-  //     sumOfTextStream += textStream;
-  //     res.write(textStream); // Stream the textStream to the client
-  //   }
-  //   res.end(); // End the response
-  // } else {
-  //   res.json({
-  //     messages: [
-  //       ...messages,
-  //       ...responseText.choices.map((choice) => choice.message),
-  //     ],
-  //   });
-  // }
-}
+export const runtime = "edge";
 
-export async function GET(req) {
-  // chat(req, NextResponse);
-  // const { payload } = req.body;
-  // const payload = await req.json();
-  const payload = [{}];
+const config = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-  console.log("payload ==>", payload);
-  let messages;
-  if (!payload) {
-    messages = [{ role: "system", content: "You are a helpful assistant." }];
-  }
-
-  if (payload) {
-    messages = [...payload];
-  }
-
-  const completion = await openai.chat.completions.create({
-    messages,
-    // model: "gpt-3.5-turbo-1106",
-    model: "gpt-4-1106-preview",
-  });
-
-  const response = completion.choices[0]?.message?.content;
-  console.log(response);
-  console.log("choices", completion.choices);
-  const message = completion.choices[0]?.message?.content;
-  console.log("message", message);
-  return NextResponse.json({
-    messages: [
-      ...messages,
-      ...completion.choices.map((choice) => choice.message),
-    ],
-  });
-}
-
-// export async function GET() {
-//   return NextResponse.json({ message: "Hello World!" });
-// }
+const openai = new OpenAIApi(config);
 
 export async function POST(req) {
   const payload = await req.json();
@@ -74,19 +24,16 @@ export async function POST(req) {
     // messages = [...payload];
   }
 
-  const completion = await openai.chat.completions.create({
+  const response = await openai.createChatCompletion({
     messages: [
       { role: "system", content: "You are a helpful assistant." },
       ...messages,
     ],
+    stream: true,
     // model: "gpt-3.5-turbo-1106",
     model: "gpt-4-1106-preview",
   });
 
-  return NextResponse.json({
-    messages: [
-      ...messages,
-      ...completion.choices.map((choice) => choice.message),
-    ],
-  });
+  const stream = new OpenAIStream(response);
+  return new StreamingTextResponse(stream);
 }
