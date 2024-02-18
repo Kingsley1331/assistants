@@ -15,6 +15,7 @@ const getThreads = async (assistant_id) => {
   return threads;
 };
 
+/**Used in multiple places turn into utility */
 async function getAssistant(assistant_id) {
   const assistantList = (await openai.beta.assistants.list()).data;
   const assistant = assistantList.filter(({ id }) => id === assistant_id)[0];

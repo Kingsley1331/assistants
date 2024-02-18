@@ -109,10 +109,11 @@ async function assistantMessage(userInput, threadId) {
   }
 }
 
-export async function POST(req) {
+export async function POST(req, context) {
+  const { threadId } = context.params;
   const payload = await req.json();
   console.log("payload ==>", payload);
-  const { userInput, threadId } = payload;
+  const { userInput } = payload;
 
   const response = await assistantMessage(userInput, threadId);
   //   console.log("response ==>", response);
