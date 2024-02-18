@@ -24,8 +24,8 @@ export async function GET(req, context) {
     name,
   }));
 
-  console.log("==================> assistantList", assistantList);
-  console.log("==================> messages", messages);
+  // console.log("==================> assistantList", assistantList);
+  // console.log("==================> messages", messages);
 
   return NextResponse.json({ messages, assistantList });
 }

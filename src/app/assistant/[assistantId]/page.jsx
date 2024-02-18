@@ -13,7 +13,7 @@ const Assistant = ({ params: { assistantId } }) => {
   console.log("assistantId", assistantId);
 
   const convertThreadToMessages = (thread, name) => {
-    const messages = thread.map((message) => {
+    const messages = thread?.map((message) => {
       if (!name && message.role === "assistant") {
         name = "Assistant";
       }
@@ -34,15 +34,14 @@ const Assistant = ({ params: { assistantId } }) => {
 
   const send = (e) => {
     axios
-      .post("/api/assistant", {
-        messages: [
-          ...messages,
-          { role: "user", content: [{ type: "text", text: userInput }] },
-        ],
+      .post(`/api/message/${selectedThread}`, {
+        userInput: { message: userInput, assistantId },
+        threadId: selectedThread,
       })
       .then((res) => {
         console.log(res.data);
-        setMessages(res.data.messages);
+        // setMessages(res.data.messages);
+        setThread(res.data.messages);
       });
   };
 
@@ -88,6 +87,7 @@ const Assistant = ({ params: { assistantId } }) => {
       <button onClick={send}>Send</button>
       {threads.map((thread, indx) => (
         <div
+          className={thread === selectedThread && "bg-twitter-blue"}
           key={thread}
           role="button"
           onClick={() => {
