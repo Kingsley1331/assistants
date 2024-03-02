@@ -6,7 +6,7 @@ import assistants from "../../../models/assistants.js";
 const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 /**Used in multiple places turn into utility */
-export const getAssistant = async (assistant_Id) => {
+const getAssistant = async (assistant_Id) => {
   await mongoose.connect(process.env.MONGODB_URI);
   const assistantList = await assistants.find();
 

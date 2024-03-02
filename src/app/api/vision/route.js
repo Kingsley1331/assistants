@@ -13,24 +13,6 @@ const config = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const chatSchema = new mongoose.Schema({
-  messages: { type: Array, required: true },
-});
-
-// const chats = mongoose.models.chats || mongoose.model("chats", chatSchema);
-
-export const getChat = async () => {
-  await mongoose.connect(process.env.MONGODB_URI);
-  const chatList = await chats.find();
-
-  return chatList;
-};
-
-const addChat = async (messages) => {
-  await mongoose.connect(process.env.MONGODB_URI);
-  await chats.create({ messages });
-};
-
 const openai = new OpenAIApi(config);
 
 export async function POST(req) {
@@ -76,8 +58,6 @@ export async function POST(req) {
     model: "gpt-4-vision-preview",
     max_tokens: 600,
   });
-
-  // addChat(chatMessages);
 
   const stream = new OpenAIStream(response);
   return new StreamingTextResponse(stream);
