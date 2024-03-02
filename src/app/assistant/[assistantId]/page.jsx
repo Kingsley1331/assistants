@@ -3,13 +3,13 @@ import { useState, useEffect, useId } from "react";
 import axios from "axios";
 
 const Assistant = ({ params: { assistantId } }) => {
-  const [messages, setMessages] = useState([]);
+  // const [messages, setMessages] = useState([]);
   const [assistant, setAssistant] = useState([]);
   const [selectedThread, setSelectedThread] = useState("");
   const [threads, setThreads] = useState([]);
   const [thread, setThread] = useState([]);
   const [userInput, setUserInput] = useState("What is the mass of the sun?");
-  const [assistantList, setAssistantList] = useState("");
+  // const [assistantList, setAssistantList] = useState("");
   console.log("assistantId", assistantId);
 
   const convertThreadToMessages = (thread, name) => {

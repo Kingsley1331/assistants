@@ -17,7 +17,7 @@ const Chat = () => {
           value={input}
         />
         <br />
-        <button onClick={handleSubmit}>Send</button>
+        <button>Send</button>
         {messages.map((message) => {
           const { content } = message;
           const text = typeof content === "string" ? content : content[0]?.text;
