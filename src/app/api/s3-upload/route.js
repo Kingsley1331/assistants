@@ -24,20 +24,44 @@ async function uploadFileToS3(file, fileName) {
 }
 
 export async function POST(req) {
+  console.log("====================================================4");
   try {
     const formData = await req.formData();
     const file = formData.get("file");
     if (!file) {
-      return NextResponse.error(new Error("No file found in the request"));
+      // return NextResponse.error(new Error("No file found in the request"), 400);
+      return NextResponse.json({ error: "File is required." }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = await uploadFileToS3(buffer, file.name);
-    NextResponse.json({ success: true, fileName });
+    return NextResponse.json({ success: true, fileName }, 200);
   } catch (error) {
     console.error("Error: ", error);
     return NextResponse.error(
-      new Error("An error occurred whilst uploading the file")
+      new Error("An error occurred whilst uploading the file"),
+      500
     );
   }
 }
+
+// export async function POST(req) {
+//   console.log("====================================================4");
+//   try {
+//     const formData = await req.formData();
+//     const file = formData.get("file");
+//     if (!file) {
+//       return NextResponse.error(new Error("No file found in the request"), 400);
+//     }
+
+//     const buffer = Buffer.from(await file.arrayBuffer());
+//     const fileName = await uploadFileToS3(buffer, file.name);
+//     return NextResponse.json({ success: true, fileName }, 200);
+//   } catch (error) {
+//     console.error("Error: ", error);
+//     return NextResponse.error(
+//       new Error("An error occurred whilst uploading the file"),
+//       500
+//     );
+//   }
+// }

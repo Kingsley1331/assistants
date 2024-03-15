@@ -64,7 +64,7 @@ const Chat = () => {
             data: {
               imageUrl,
               // imageUrl:
-              //   "https://vision-model-images1.s3.eu-north-1.amazonaws.com/bounty.jpg",
+              //   "https://vision-model-images1.s3.eu-north-1.amazonaws.com/images/life.jpg",
             },
           });
         }}
@@ -115,7 +115,7 @@ const Chat = () => {
             </div>
           )}
         </div>
-        <S3UploadForm />
+
         {/* <button onClick={handleSubmit}>Send</button> */}
         {messages.map((message) => {
           const { content } = message;
@@ -123,6 +123,15 @@ const Chat = () => {
           return <div key={content}>{text}</div>;
         })}
       </form>
+      <S3UploadForm />
+
+      <Image
+        width="100"
+        height="100"
+        src="https://vision-model-images1.s3.eu-north-1.amazonaws.com/images/life.jpg"
+        // src="https://vision-model-images1.s3.eu-north-1.amazonaws.com/bounty.jpg"
+        alt="close"
+      ></Image>
     </div>
   );
 };

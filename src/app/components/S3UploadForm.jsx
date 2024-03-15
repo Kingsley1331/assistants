@@ -1,5 +1,4 @@
 "use client";
-import { set } from "mongoose";
 import { useState } from "react";
 
 const S3UploadForm = () => {
@@ -7,13 +6,15 @@ const S3UploadForm = () => {
   const [uploading, setUploading] = useState(false);
 
   const handleFileChange = (e) => {
+    console.log("====================================================3");
     setFile(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
+    console.log("====================================================1");
     e.preventDefault();
     if (!file) return;
-
+    console.log("====================================================2");
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -22,7 +23,8 @@ const S3UploadForm = () => {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
+      // const data = await response;
+      const data = await response;
       console.log("data", data);
       setUploading(false);
     } catch (error) {
@@ -38,7 +40,7 @@ const S3UploadForm = () => {
         <input type="file" name="file" onChange={handleFileChange} />
         <button type="submit" disabled={!file || uploading}>
           {uploading ? "Uploading..." : "Upload"}
-        </button>
+        </button>{" "}
       </form>
     </>
   );
