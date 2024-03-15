@@ -24,7 +24,7 @@ const S3UploadForm = () => {
         body: formData,
       });
       // const data = await response;
-      const data = await response;
+      const data = await response.json();
       console.log("data", data);
       setUploading(false);
     } catch (error) {

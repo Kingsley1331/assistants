@@ -124,14 +124,14 @@ const Chat = () => {
         })}
       </form>
       <S3UploadForm />
-
+      {/* 
       <Image
         width="100"
         height="100"
         src="https://vision-model-images1.s3.eu-north-1.amazonaws.com/images/life.jpg"
         // src="https://vision-model-images1.s3.eu-north-1.amazonaws.com/bounty.jpg"
         alt="close"
-      ></Image>
+      ></Image> */}
     </div>
   );
 };

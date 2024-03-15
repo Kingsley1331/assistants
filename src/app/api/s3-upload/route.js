@@ -19,7 +19,7 @@ async function uploadFileToS3(file, fileName) {
     "content-type}": "image/jpeg",
   };
   const uploadCommand = new PutObjectCommand(uploadParams);
-  const response = await s3Client.send(uploadCommand);
+  await s3Client.send(uploadCommand);
   return fileName;
 }
 
@@ -32,10 +32,10 @@ export async function POST(req) {
       // return NextResponse.error(new Error("No file found in the request"), 400);
       return NextResponse.json({ error: "File is required." }, { status: 400 });
     }
-
+    console.log("====================================================5");
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = await uploadFileToS3(buffer, file.name);
-    return NextResponse.json({ success: true, fileName }, 200);
+    return NextResponse.json({ success: true, fileName }, { status: 200 });
   } catch (error) {
     console.error("Error: ", error);
     return NextResponse.error(
