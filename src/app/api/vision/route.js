@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { Configuration, OpenAIApi } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
+import fs from "fs";
+// import { converBase64ToImage } from "convert-base64-to-image";
 import mongoose from "mongoose";
 // import OpenAI from "openai";
 
@@ -23,8 +25,8 @@ export async function POST(req) {
   // 'data' contains the additional data that you have sent:
   const { messages, data } = await req.json();
   console.log("=======> messages", messages);
-  console.log("=======> data", data.imageUrl.substring(0, 50));
-
+  console.log("=======> data", data.imageUrl.substring(0, 100));
+  // converBase64ToImage(data.imageUrl, "./public/images/test.jpg");
   const initialMessages = messages.slice(0, -1);
   const currentMessage = messages[messages.length - 1];
 

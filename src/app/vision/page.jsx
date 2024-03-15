@@ -2,15 +2,38 @@
 import { useChat } from "ai/react";
 import { useState } from "react";
 import Image from "next/image";
+import S3UploadForm from "../components/S3UploadForm";
 
 const Chat = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const { input, handleInputChange, handleSubmit, isLoading, messages } =
-    useChat({
-      api: "/api/vision",
-      initialInput: "Can you describe this image?",
-    });
+  const {
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    messages,
+    setMessages,
+  } = useChat({
+    api: "/api/vision",
+    initialInput: "Can you describe this image?",
+  });
+
+  // setMessages((msgs) => [
+  //   // ...(msgs ? [...msgs] : []),
+  //   {
+  //     role: "user",
+  //     content: [
+  //       { type: "text", text: input },
+  //       ,
+  //       { type: "image_url", image_url: imageUrl },
+  //     ],
+  //   },
+  // ]);
+  // setMessages(messages.map((msg) => ({ ...msg, content: msg.content[0].text })  );
+  // setMessages((msgs) => msgs.concat({ role: "user", content: input });
+
+  console.log("messages", messages);
 
   const handleFileInput = (e) => {
     const file = e.target.files[0];
@@ -40,9 +63,12 @@ const Chat = () => {
           handleSubmit(e, {
             data: {
               imageUrl,
+              // imageUrl:
+              //   "https://vision-model-images1.s3.eu-north-1.amazonaws.com/bounty.jpg",
             },
           });
         }}
+        // onSubmit={handleSubmit}
       >
         <input
           style={{ width: "100%" }}
@@ -60,7 +86,14 @@ const Chat = () => {
             className="file"
             onChange={handleFileInput}
           />
-          <label for="file">{/* <UploadIcon role="button" /> */}</label>
+          <label htmlFor="file">{/* <UploadIcon role="button" /> */}</label>
+          {/* <Image width="100" height="100" src="/getty.jpg" alt="close"></Image> */}
+          {/* <Image
+            width="100"
+            height="100"
+            src="/images/test.jpg"
+            alt="close"
+          ></Image> */}
           {imageUrl && (
             <div className="preview">
               <Image
@@ -82,6 +115,7 @@ const Chat = () => {
             </div>
           )}
         </div>
+        <S3UploadForm />
         {/* <button onClick={handleSubmit}>Send</button> */}
         {messages.map((message) => {
           const { content } = message;
