@@ -7,7 +7,7 @@ import Image from "next/image";
 
 const Chat = () => {
   const [imageUrl, setImageUrl] = useState(null);
-  const [userInput, setUserInput] = useState("");
+  const [userInput, setUserInput] = useState("Please describe this image");
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [messages, setMessages] = useState([
@@ -23,15 +23,44 @@ const Chat = () => {
     // });
   }, []);
 
-  const sendmessage = async () => {
+  const sendmessage = async (image_url) => {
     // const response = await axios.post("/api/vision", {
     //   messages: [...messages, { role: "user", content: userInput }],
     // });
 
+    const content = [{ type: "text", text: userInput }];
+
+    if (image_url) {
+      content.push({
+        type: "image_url",
+        image_url,
+      });
+    }
+
     fetch("/api/vision", {
       method: "POST",
       body: JSON.stringify({
-        messages: [...messages, { role: "user", content: userInput }],
+        messages: [
+          ...messages,
+          {
+            role: "user",
+            content,
+            // content: [
+            //   { type: "text", text: userInput },
+            //   ...(selectedFile?.name && {
+            //     type: "image",
+            //     url: imgUrl,
+            //   }),
+            // ],
+            // content: [
+            //   { type: "text", text: userInput },
+            //   {
+            //     type: "image_url",
+            //     image_url,
+            //   },
+            // ],
+          },
+        ],
       }),
       headers: {
         "Content-Type": "application/json",
@@ -48,8 +77,8 @@ const Chat = () => {
               controller.enqueue(value);
               // Process chunk here
               textChunk += new TextDecoder().decode(value);
-              console.log("textChunk", textChunk);
-              console.count("textChunk");
+              // console.log("textChunk", textChunk);
+              // console.count("textChunk");
               setMessages([
                 ...messages,
                 {
@@ -80,7 +109,9 @@ const Chat = () => {
   const handleFileSubmit = async (e) => {
     console.log("====================================================1");
     e.preventDefault();
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      return await sendmessage();
+    }
     console.log("====================================================2");
     setUploading(true);
     const formData = new FormData();
@@ -93,8 +124,12 @@ const Chat = () => {
       // const data = await response;
       const data = await response.json();
       console.log("data", data);
+      console.log("filename", data?.fileName);
+
       setUploading(false);
-      await sendmessage();
+      const imgUrl = `https://vision-model-images1.s3.eu-north-1.amazonaws.com/images/${data?.fileName}`;
+      setImageUrl(imgUrl);
+      await sendmessage(imgUrl);
     } catch (error) {
       console.error("Error: ", error);
       setUploading(false);
@@ -140,7 +175,7 @@ const Chat = () => {
   // setMessages(messages.map((msg) => ({ ...msg, content: msg.content[0].text })  );
   // setMessages((msgs) => msgs.concat({ role: "user", content: input });
 
-  console.log("messages", messages);
+  // console.log("messages", messages);
   console.log("selectedFile", selectedFile);
 
   const handleInputChange = (e) => {
@@ -164,7 +199,8 @@ const Chat = () => {
 
   //   reader.readAsDataURL(file);
   // };
-  console.log("userInput", userInput);
+  // console.log("userInput", userInput);
+  console.log("imageUrl", imageUrl);
 
   return (
     <div>
@@ -187,6 +223,7 @@ const Chat = () => {
           style={{ width: "100%" }}
           onChange={handleInputChange}
           type="text"
+          value={userInput}
           placeholder="Please ask anything you want"
           // value={input}
         />
@@ -245,14 +282,16 @@ const Chat = () => {
           </button>{" "}
         </form>
       </>
-      {/* 
-      <Image
-        width="100"
-        height="100"
-        src="https://vision-model-images1.s3.eu-north-1.amazonaws.com/images/life.jpg"
-        // src="https://vision-model-images1.s3.eu-north-1.amazonaws.com/bounty.jpg"
-        alt="close"
-      ></Image> */}
+      {imageUrl && (
+        <Image
+          width="100"
+          height="100"
+          src={imageUrl}
+          // src="https://vision-model-images1.s3.eu-north-1.amazonaws.com/images/life.jpg"
+          // src="https://vision-model-images1.s3.eu-north-1.amazonaws.com/bounty.jpg"
+          alt="close"
+        ></Image>
+      )}
     </div>
   );
 };
