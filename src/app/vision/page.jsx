@@ -1,26 +1,89 @@
 "use client";
-import { useChat } from "ai/react";
-import { useState } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 const Chat = () => {
   const [imageUrl, setImageUrl] = useState(null);
+  const [userInput, setUserInput] = useState("Please describe this image");
   const [selectedFile, setSelectedFile] = useState(null);
-  const { input, handleInputChange, handleSubmit, isLoading, messages } =
-    useChat({
-      api: "/api/vision",
-      initialInput: "Can you describe this image?",
-    });
+  const [uploading, setUploading] = useState(false);
+  const [messages, setMessages] = useState([
+    { role: "system", content: "You are a helpful assistant." },
+  ]);
 
-  const handleFileInput = (e) => {
+  const sendmessage = async (image_url) => {
+    const content = [{ type: "text", text: userInput }];
+
+    if (image_url) {
+      content.push({
+        type: "image_url",
+        image_url,
+      });
+    }
+
+    fetch("/api/vision", {
+      method: "POST",
+      body: JSON.stringify({
+        messages: [
+          ...messages,
+          {
+            role: "user",
+            content,
+          },
+        ],
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        setImageUrl(null);
+        setUserInput("");
+        setSelectedFile(null);
+
+        const reader = response.body.getReader();
+        return new ReadableStream({
+          async start(controller) {
+            let textChunk = "";
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              controller.enqueue(value);
+              // Process chunk here
+              textChunk += new TextDecoder().decode(value);
+              // console.log("textChunk", textChunk);
+              // console.count("textChunk");
+              setMessages([
+                ...messages,
+                {
+                  role: "user",
+                  content,
+                },
+                {
+                  role: "assistant",
+                  content: [{ type: "text", text: textChunk }],
+                },
+              ]);
+            }
+
+            controller.close();
+            reader.releaseLock();
+          },
+        });
+      })
+      .then((stream) => new Response(stream))
+      .then((response) => response.text())
+      .then((text) => {
+        console.log("text", text);
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
 
     setSelectedFile(file);
-    if (!file) {
-      setImageUrl(null);
-      setSelectedFile(null);
-      return;
-    }
     const reader = new FileReader();
 
     reader.onloadend = () => {
@@ -29,66 +92,105 @@ const Chat = () => {
 
     reader.readAsDataURL(file);
   };
-  // console.log("imageUrl", imageUrl);
 
+  const handleFileSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedFile) {
+      return await sendmessage();
+    }
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    try {
+      const response = await fetch("/api/s3-upload", {
+        method: "POST",
+        body: formData,
+      });
+      // const data = await response;
+      const data = await response.json();
+      // console.log("data", data);
+      // console.log("filename", data?.fileName);
+
+      setUploading(false);
+      const imgUrl = `https://vision-model-images1.s3.eu-north-1.amazonaws.com/images/${data?.fileName}`;
+      setImageUrl(imgUrl);
+      await sendmessage(imgUrl);
+    } catch (error) {
+      console.error("Error: ", error);
+      setUploading(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setUserInput(e.target.value);
+  };
+
+  console.log("messages", messages);
   return (
     <div>
       <h1>Vision</h1>
-      <form
-        className="mt-12"
-        onSubmit={(e) => {
-          handleSubmit(e, {
-            data: {
-              imageUrl,
-            },
-          });
-        }}
-      >
+      <form className="mt-12" onSubmit={handleFileSubmit}>
         <input
           style={{ width: "100%" }}
           onChange={handleInputChange}
           type="text"
+          value={userInput}
           placeholder="Please ask anything you want"
-          value={input}
         />
         <br />
         <button type="submit">Send</button>
-        <div className="file-input">
-          <input
-            type="file"
-            id="file"
-            className="file"
-            onChange={handleFileInput}
-          />
-          <label for="file">{/* <UploadIcon role="button" /> */}</label>
-          {imageUrl && (
-            <div className="preview">
-              <Image
-                width="100"
-                height="100"
-                src={imageUrl}
-                alt="preview"
-              ></Image>
-              <div
-                className="close"
-                role="button"
-                onClick={() => {
-                  setImageUrl(null);
-                  setSelectedFile(null);
-                }}
-              >
-                {/* <Image width="20" src={close} alt="close"></Image> */}
-              </div>
-            </div>
-          )}
-        </div>
-        {/* <button onClick={handleSubmit}>Send</button> */}
-        {messages.map((message) => {
-          const { content } = message;
+
+        {messages.map((message, idx) => {
+          const { content, role } = message;
           const text = typeof content === "string" ? content : content[0]?.text;
-          return <div key={content}>{text}</div>;
+          if (role === "system") {
+            return;
+          }
+
+          let imageArray = [];
+
+          if (Array.isArray(content)) {
+            const images = content.filter((item) => item.type === "image_url");
+            imageArray = images.map((item) => {
+              if (item.type === "image_url") {
+                return (
+                  <div key={idx}>
+                    <Image
+                      width="300"
+                      height="300"
+                      src={item.image_url}
+                      alt="close"
+                    />
+                  </div>
+                );
+              }
+            });
+          }
+
+          const messageRole = role === "assistant" ? "Assistant: " : "User: ";
+
+          return (
+            <div key={idx}>
+              <strong>{messageRole}</strong>
+              {text}
+              {imageArray}
+              <br></br>
+            </div>
+          );
         })}
       </form>
+      <>
+        <h1>Upload image to S3 Bucket</h1>
+        <form onSubmit={handleFileSubmit}>
+          <input type="file" name="file" onChange={handleFileChange} />
+          <button type="submit" disabled={!selectedFile || uploading}>
+            {uploading ? "Uploading..." : "Upload"}
+          </button>{" "}
+        </form>
+      </>
+      {imageUrl && (
+        <Image width="100" height="100" src={imageUrl} alt="close"></Image>
+      )}
     </div>
   );
 };
