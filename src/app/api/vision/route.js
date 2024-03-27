@@ -21,7 +21,7 @@ export async function POST(req, res) {
   const { messages } = await req.json();
   console.log("=======> messages", messages);
   const responseText = await openai.chat.completions.create({
-    messages,
+    messages: [...messages],
     model: "gpt-4-vision-preview",
     max_tokens: 600, // 4096 is the maximum possible
     stream: true,

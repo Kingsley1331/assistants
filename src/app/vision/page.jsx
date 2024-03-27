@@ -2,6 +2,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { set } from "mongoose";
 
 const Chat = () => {
   const [imageUrl, setImageUrl] = useState(null);
@@ -38,6 +39,10 @@ const Chat = () => {
       },
     })
       .then((response) => {
+        setImageUrl(null);
+        setUserInput("");
+        setSelectedFile(null);
+
         const reader = response.body.getReader();
         return new ReadableStream({
           async start(controller) {
@@ -52,6 +57,10 @@ const Chat = () => {
               // console.count("textChunk");
               setMessages([
                 ...messages,
+                {
+                  role: "user",
+                  content,
+                },
                 {
                   role: "assistant",
                   content: [{ type: "text", text: textChunk }],
@@ -117,7 +126,7 @@ const Chat = () => {
     setUserInput(e.target.value);
   };
 
-  // console.log("selectedFile", selectedFile);
+  console.log("messages", messages);
   return (
     <div>
       <h1>Vision</h1>
@@ -148,14 +157,7 @@ const Chat = () => {
         </form>
       </>
       {imageUrl && (
-        <Image
-          width="100"
-          height="100"
-          src={imageUrl}
-          // src="https://vision-model-images1.s3.eu-north-1.amazonaws.com/images/life.jpg"
-          // src="https://vision-model-images1.s3.eu-north-1.amazonaws.com/bounty.jpg"
-          alt="close"
-        ></Image>
+        <Image width="100" height="100" src={imageUrl} alt="close"></Image>
       )}
     </div>
   );
