@@ -2,7 +2,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { set } from "mongoose";
 
 const Chat = () => {
   const [imageUrl, setImageUrl] = useState(null);
@@ -141,10 +140,43 @@ const Chat = () => {
         <br />
         <button type="submit">Send</button>
 
-        {messages.map((message) => {
-          const { content } = message;
+        {messages.map((message, idx) => {
+          const { content, role } = message;
           const text = typeof content === "string" ? content : content[0]?.text;
-          return <div key={content}>{text}</div>;
+          if (role === "system") {
+            return;
+          }
+
+          let imageArray = [];
+
+          if (Array.isArray(content)) {
+            const images = content.filter((item) => item.type === "image_url");
+            imageArray = images.map((item) => {
+              if (item.type === "image_url") {
+                return (
+                  <div key={idx}>
+                    <Image
+                      width="300"
+                      height="300"
+                      src={item.image_url}
+                      alt="close"
+                    />
+                  </div>
+                );
+              }
+            });
+          }
+
+          const messageRole = role === "assistant" ? "Assistant: " : "User: ";
+
+          return (
+            <div key={idx}>
+              <strong>{messageRole}</strong>
+              {text}
+              {imageArray}
+              <br></br>
+            </div>
+          );
         })}
       </form>
       <>
