@@ -73,17 +73,23 @@ const Chat = () => {
   };
 
   const handleFileChange = (e) => {
-    console.log("====================================================3");
-    setSelectedFile(e.target.files[0]);
+    const file = e.target.files[0];
+
+    setSelectedFile(file);
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setImageUrl(reader.result);
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const handleFileSubmit = async (e) => {
-    console.log("====================================================1");
     e.preventDefault();
     if (!selectedFile) {
       return await sendmessage();
     }
-    console.log("====================================================2");
     setUploading(true);
     const formData = new FormData();
     formData.append("file", selectedFile);
@@ -94,8 +100,8 @@ const Chat = () => {
       });
       // const data = await response;
       const data = await response.json();
-      console.log("data", data);
-      console.log("filename", data?.fileName);
+      // console.log("data", data);
+      // console.log("filename", data?.fileName);
 
       setUploading(false);
       const imgUrl = `https://vision-model-images1.s3.eu-north-1.amazonaws.com/images/${data?.fileName}`;
@@ -111,6 +117,7 @@ const Chat = () => {
     setUserInput(e.target.value);
   };
 
+  // console.log("selectedFile", selectedFile);
   return (
     <div>
       <h1>Vision</h1>
