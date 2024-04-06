@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useId } from "react";
 import axios from "axios";
-import Navigation from "./components/Navigation";
+import Navigation from "../../components/Navigation";
 
 const Assistant = ({ params: { assistantId } }) => {
   // const [messages, setMessages] = useState([]);
