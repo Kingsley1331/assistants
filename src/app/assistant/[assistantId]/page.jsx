@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useId } from "react";
 import axios from "axios";
+import Navigation from "./components/Navigation";
 
 const Assistant = ({ params: { assistantId } }) => {
   // const [messages, setMessages] = useState([]);
@@ -98,6 +99,7 @@ const Assistant = ({ params: { assistantId } }) => {
   console.log("thread", thread);
   return (
     <div>
+      <Navigation />
       <h1>{assistant?.name}</h1>
       <input
         style={{ width: "100%" }}
