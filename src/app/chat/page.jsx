@@ -1,5 +1,6 @@
 "use client";
 import { useChat } from "ai/react";
+import Navigation from "../components/Navigation";
 
 const Chat = () => {
   const { input, handleInputChange, handleSubmit, isLoading, messages } =
@@ -7,6 +8,7 @@ const Chat = () => {
 
   return (
     <div>
+      <Navigation />
       <h1>Chat</h1>
       <form className="mt-12" onSubmit={handleSubmit}>
         <input

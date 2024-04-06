@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
+import Navigation from "../components/Navigation";
 
 function Assistants() {
   const [assistantIds, setAssistantIds] = useState([]);
@@ -18,6 +19,7 @@ function Assistants() {
 
   return (
     <div>
+      <Navigation />
       <h1>List of Assistants</h1>
       {assistantIds.map((assist) => {
         return (

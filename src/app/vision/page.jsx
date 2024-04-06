@@ -1,6 +1,7 @@
 "use client";
 import axios from "axios";
 import { useState, useEffect } from "react";
+import Navigation from "../components/Navigation";
 import Image from "next/image";
 
 const Chat = () => {
@@ -128,6 +129,7 @@ const Chat = () => {
   console.log("messages", messages);
   return (
     <div>
+      <Navigation />
       <h1>Vision</h1>
       <form className="mt-12" onSubmit={handleFileSubmit}>
         <input
