@@ -6,8 +6,9 @@ export default function Home() {
     <div>
       <Navigation />
       <h1>Home</h1>
+      <button>Send</button>
       {/* <section className="h-screen bg-twitter-blue flex items-center justify-center m-12 text-center text-3xl p-12 md:p-14 lg:p-16 xl:p-2">
-        <p>
+        <p className="font-mono bg-blue-600">
           Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet,Lorem ipsum
           dolor sit amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit
           amet, Lorem ipsum dolor sit amet, Lorem ipsum dolor sit amet,Lorem
