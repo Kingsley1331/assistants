@@ -9,9 +9,9 @@ const List = () => {
       >
         <div
           id="navbar-primary"
-          className="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow sm:block"
+          className="hs-collapse overflow-hidden transition-all duration-300 basis-full grow sm:block"
         >
-          <div className="flex flex-col gap-5 mt-5 sm:flex-row sm:items-center sm:justify-end sm:mt-0 sm:ps-5">
+          <div className="flex flex-row gap-5 sm:items-center sm:mt-0 sm:ps-5">
             <Link
               className="font-medium text-gray-300 hover:text-white"
               href="/"
