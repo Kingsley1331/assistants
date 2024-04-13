@@ -2,6 +2,8 @@
 import { useState, useEffect, useId } from "react";
 import axios from "axios";
 import Navigation from "../../components/Navigation";
+import { Button } from "@nextui-org/button";
+import { Textarea, Input } from "@nextui-org/react";
 
 const Assistant = ({ params: { assistantId } }) => {
   const [messagesText, setMessagesText] = useState([]);
@@ -128,79 +130,83 @@ const Assistant = ({ params: { assistantId } }) => {
     setMessagesText([]);
   }, [selectedThread]);
 
+  const renderMessages = (messages) =>
+    messages.map((message) => {
+      const { content, role, name, id } = message;
+      const text = typeof content === "string" ? content : content[0]?.text;
+      return (
+        <div key={id}>
+          <h3>
+            <strong>{role}</strong>
+          </h3>
+          <p>{text}</p>
+        </div>
+      );
+    });
+
   return (
-    <div>
+    <>
       <Navigation />
-      <h1>{assistant?.name}</h1>
-      <input
-        style={{ width: "100%" }}
-        onChange={handleChange}
-        type="text"
-        placeholder="Please ask anything you want"
-        value={userInput}
-      />
-      <br />
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-        onClick={send}
-      >
-        Send
-      </button>
-      <table>
-        {threads.map((thread, indx) => (
-          <tr key={thread}>
-            <td>
-              <div
-                className={thread === selectedThread && "bg-twitter-blue"}
-                role="button"
-                onClick={() => {
-                  getMessages(thread);
-                  setSelectedThread(thread);
-                }}
-              >{`Thread ${indx + 1}`}</div>
-            </td>
-            <td>
+      <div className="p-4">
+        <div className="border border-black flex relative">
+          <div className="min-w-60">
+            <table>
+              {threads.map((thread, indx) => (
+                <tr key={thread}>
+                  <td>
+                    <div
+                      className={`${thread === selectedThread && "bg-twitter-blue"} m-4`}
+                      role="button"
+                      onClick={() => {
+                        getMessages(thread);
+                        setSelectedThread(thread);
+                      }}
+                    >{`Thread ${indx + 1}`}</div>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => deleteThread(thread)}
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </table>
+            <button
+              onClick={startNewChat}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+            >
+              Start new chat
+            </button>
+          </div>
+          <div className="w-10/12">
+            <h1 className="mb-8 mt-4 text-2xl text-center">
+              {assistant?.name}
+            </h1>
+            {renderMessages(convertThreadToMessages(thread, assistant.name))}
+            {renderMessages(messagesText)}
+            <div className="flex items-center justify-center w-full mt-32">
+              <Input
+                // style={{ width: "100%" }}
+                onChange={handleChange}
+                type="text"
+                value={userInput}
+                placeholder="Please ask anything you want"
+                className="w-full"
+              />
               <button
-                onClick={() => deleteThread(thread)}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3"
+                onClick={send}
               >
-                Delete
+                Send
               </button>
-            </td>
-          </tr>
-        ))}
-      </table>
-      <button
-        onClick={startNewChat}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-      >
-        Start new chat
-      </button>
-      {convertThreadToMessages(thread, assistant.name)?.map((message) => {
-        const { content, role, name, id } = message;
-        const text = typeof content === "string" ? content : content[0]?.text;
-        return (
-          <div key={id}>
-            <h3>
-              <strong>{role}</strong>
-            </h3>
-            <p>{text}</p>
+            </div>
           </div>
-        );
-      })}
-      {messagesText.map((message) => {
-        const { content, role, name, id } = message;
-        const text = typeof content === "string" ? content : content[0]?.text;
-        return (
-          <div key={id}>
-            <h3>
-              <strong>{role}</strong>
-            </h3>
-            <p>{text}</p>
-          </div>
-        );
-      })}
-    </div>
+        </div>
+      </div>
+    </>
   );
 };
 
