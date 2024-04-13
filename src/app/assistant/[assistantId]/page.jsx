@@ -2,8 +2,7 @@
 import { useState, useEffect, useId } from "react";
 import axios from "axios";
 import Navigation from "../../components/Navigation";
-import { Button } from "@nextui-org/button";
-import { Textarea, Input } from "@nextui-org/react";
+import { Input } from "@nextui-org/react";
 
 const Assistant = ({ params: { assistantId } }) => {
   const [messagesText, setMessagesText] = useState([]);
@@ -148,20 +147,24 @@ const Assistant = ({ params: { assistantId } }) => {
     <>
       <Navigation />
       <div className="p-4">
-        <div className="border border-black flex relative">
+        <div className="flex relative">
           <div className="min-w-60">
             <table>
               {threads.map((thread, indx) => (
                 <tr key={thread}>
-                  <td>
+                  <td
+                    className={`${thread === selectedThread && "bg-slate-200"}`}
+                  >
                     <div
-                      className={`${thread === selectedThread && "bg-twitter-blue"} m-4`}
+                      className={"m-4"}
                       role="button"
                       onClick={() => {
                         getMessages(thread);
                         setSelectedThread(thread);
                       }}
-                    >{`Thread ${indx + 1}`}</div>
+                    >
+                      <span className=" p-1">{`Thread ${indx + 1}`}</span>
+                    </div>
                   </td>
                   <td>
                     <button
