@@ -4,14 +4,12 @@ import axios from "axios";
 import Navigation from "../../components/Navigation";
 
 const Assistant = ({ params: { assistantId } }) => {
-  // const [messages, setMessages] = useState([]);
+  const [messagesText, setMessagesText] = useState([]);
   const [assistant, setAssistant] = useState([]);
   const [selectedThread, setSelectedThread] = useState("");
   const [threads, setThreads] = useState([]);
   const [thread, setThread] = useState([]);
   const [userInput, setUserInput] = useState("What is the mass of the sun?");
-  // const [assistantList, setAssistantList] = useState("");
-  console.log("assistantId", assistantId);
 
   const convertThreadToMessages = (thread, name) => {
     const messages = thread?.map((message) => {
@@ -64,14 +62,44 @@ const Assistant = ({ params: { assistantId } }) => {
   };
 
   const send = (e) => {
-    axios
-      .post(`/api/message/${selectedThread}`, {
+    fetch(`/api/message/${selectedThread}`, {
+      method: "POST",
+      body: JSON.stringify({
         userInput: { message: userInput, assistantId },
-      })
-      .then((res) => {
-        console.log(res.data);
-        setThread(res.data.messages);
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((response) => {
+      const reader = response.body.getReader();
+      return new ReadableStream({
+        async start(controller) {
+          let textChunk = "";
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            controller.enqueue(value);
+            // Process chunk here
+            textChunk += new TextDecoder().decode(value);
+
+            setMessagesText([
+              ...messagesText,
+              {
+                role: "user",
+                content: [{ type: "text", text: userInput }],
+              },
+              {
+                role: "assistant",
+                content: [{ type: "text", text: textChunk }],
+              },
+            ]);
+          }
+
+          controller.close();
+          reader.releaseLock();
+        },
       });
+    });
   };
 
   const getMessages = async (threadId) => {
@@ -96,7 +124,10 @@ const Assistant = ({ params: { assistantId } }) => {
     });
   }, [assistantId]);
 
-  console.log("thread", thread);
+  useEffect(() => {
+    setMessagesText([]);
+  }, [selectedThread]);
+
   return (
     <div>
       <Navigation />
@@ -145,7 +176,19 @@ const Assistant = ({ params: { assistantId } }) => {
       >
         Start new chat
       </button>
-      {convertThreadToMessages(thread, assistant.name).map((message) => {
+      {convertThreadToMessages(thread, assistant.name)?.map((message) => {
+        const { content, role, name, id } = message;
+        const text = typeof content === "string" ? content : content[0]?.text;
+        return (
+          <div key={id}>
+            <h3>
+              <strong>{role}</strong>
+            </h3>
+            <p>{text}</p>
+          </div>
+        );
+      })}
+      {messagesText.map((message) => {
         const { content, role, name, id } = message;
         const text = typeof content === "string" ? content : content[0]?.text;
         return (
