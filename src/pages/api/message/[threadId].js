@@ -30,12 +30,8 @@ export default async function handler(req, res) {
         .stream(threadId, {
           assistant_id: assistantId,
         })
-        .on("textCreated", (text) => {
-          console.log(`Response ====> ${text.value}`);
-        })
         .on("textDelta", (textDelta, snapshot) => {
           streamedResponse += textDelta.value;
-          console.log(snapshot.value);
           res.write(textDelta.value);
         });
 
