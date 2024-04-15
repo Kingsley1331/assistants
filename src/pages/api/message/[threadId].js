@@ -1,14 +1,16 @@
 import OpenAI from "openai";
+export const maxDuration = 100; // This function can run for a maximum of 100 seconds
+export const dynamic = "force-dynamic";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-  res.flushHeaders();
+  // res.setHeader("Content-Type", "text/event-stream");
+  // res.setHeader("Cache-Control", "no-cache");
+  // res.setHeader("Connection", "keep-alive");
+  // res.flushHeaders();
 
-  res.write("...........................");
+  // res.write("...........................");
   if (req.method === "POST") {
     const { threadId } = req.query;
     const payload = req.body;
