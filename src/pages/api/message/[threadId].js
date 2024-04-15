@@ -25,6 +25,14 @@ export default async function handler(req, res) {
       });
     }
 
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    // Send data immediately
+    res.write("data: This is a message\n\n");
+
     if (assistantId) {
       const run = openai.beta.threads.runs
         .stream(threadId, {
@@ -38,6 +46,10 @@ export default async function handler(req, res) {
           console.log("================================> Stream connected");
           res.write("");
         });
+
+      run.on("end", () => {
+        res.end();
+      });
 
       run.on("error", (error) => {
         console.error(error);
