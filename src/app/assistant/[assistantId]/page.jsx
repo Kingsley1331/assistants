@@ -94,7 +94,7 @@ const Assistant = ({ params: { assistantId } }) => {
             controller.enqueue(value);
             // Process chunk here
             textChunk += new TextDecoder().decode(value);
-            console.log("textChunk", textChunk);
+
             setMessagesText([
               ...messagesText,
               {
