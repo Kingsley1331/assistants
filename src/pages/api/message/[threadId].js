@@ -33,6 +33,10 @@ export default async function handler(req, res) {
         .on("textDelta", (textDelta, snapshot) => {
           streamedResponse += textDelta.value;
           res.write(textDelta.value);
+        })
+        .on("connect", () => {
+          console.log("================================> Stream connected");
+          res.write("");
         });
 
       run.on("error", (error) => {
