@@ -30,8 +30,7 @@ export default async function handler(req, res) {
     res.setHeader("Connection", "keep-alive");
     res.flushHeaders();
 
-    // Send data immediately
-    res.write("");
+    res.write("...........................");
 
     if (assistantId) {
       const run = openai.beta.threads.runs
