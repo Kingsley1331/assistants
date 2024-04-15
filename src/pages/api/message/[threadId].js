@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     res.flushHeaders();
 
     // Send data immediately
-    res.write("data: This is a message\n\n");
+    res.write("");
 
     if (assistantId) {
       const run = openai.beta.threads.runs
