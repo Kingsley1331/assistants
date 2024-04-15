@@ -12,6 +12,18 @@ const Assistant = ({ params: { assistantId } }) => {
   const [thread, setThread] = useState([]);
   const [userInput, setUserInput] = useState("What is the mass of the sun?");
 
+  // const getDataStream = () => {
+  //   const source = new EventSource(`/api/message/${selectedThread}`);
+
+  //   source.onmessage = function (event) {
+  //     console.log("event.data", event.data);
+  //   };
+
+  //   source.onerror = function (event) {
+  //     console.error("An error occurred:", event);
+  //   };
+  // };
+
   const convertThreadToMessages = (thread, name) => {
     const messages = thread?.map((message) => {
       if (!name && message.role === "assistant") {
@@ -82,7 +94,7 @@ const Assistant = ({ params: { assistantId } }) => {
             controller.enqueue(value);
             // Process chunk here
             textChunk += new TextDecoder().decode(value);
-
+            console.log("textChunk", textChunk);
             setMessagesText([
               ...messagesText,
               {
@@ -101,6 +113,7 @@ const Assistant = ({ params: { assistantId } }) => {
         },
       });
     });
+    // getDataStream();
   };
 
   const getMessages = async (threadId) => {
