@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-export const maxDuration = 100; // This function can run for a maximum of 100 seconds
+export const maxDuration = 300; // This function can run for a maximum of 300 seconds
 export const dynamic = "force-dynamic";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
