@@ -83,7 +83,7 @@ const Chat = () => {
                     ...streamingMessage,
                     content: contentSnapshot,
                   };
-                  totalMessage += contentSnapshot;
+                  totalMessage += contentSnapshot.replaceAll("undefined", "");
                   setStreamingMessage(newStreamingMessage);
                   break;
               }
