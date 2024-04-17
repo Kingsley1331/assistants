@@ -36,6 +36,12 @@ const List = () => {
             >
               Assistants
             </Link>
+            <Link
+              className="font-medium text-gray-300 hover:text-white"
+              href="/helpfulAssistant"
+            >
+              Helpful Assistant
+            </Link>
           </div>
         </div>
       </nav>
