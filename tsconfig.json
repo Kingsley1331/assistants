@@ -30,6 +30,7 @@
     ".next/types/**/*.ts",
     "src/app/api/chat/route.js",
     "src/app/chat/page.jsx",
+    "src/app/api/assistant_message",
   ],
   "exclude": ["node_modules"],
 }

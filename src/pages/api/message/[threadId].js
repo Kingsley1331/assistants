@@ -3,9 +3,15 @@ import OpenAI from "openai";
 // export const maxDuration = 300; // This function can run for a maximum of 300 seconds
 export const dynamic = "force-dynamic";
 
+// https://github.com/orgs/vercel/discussions/4567
 export const config = {
   maxDuration: 300, // 5 minutes.
 };
+
+// Streaming solution
+// https://openai-assistant-starter-kit.vercel.app/
+// https://github.com/Superexpert/openai-assistant-starter-kit/blob/main/app/api/openai-assistant/route.ts
+// https://stephenwalther.com/use-the-openai-assistant-starter-kit-to-quickly-build-new-openai-apps/
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
