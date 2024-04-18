@@ -172,3 +172,12 @@ const Chat = () => {
 };
 
 export default Chat;
+
+const delta = {
+  event: "thread.message.delta",
+  data: {
+    id: "msg_Z8MR4m5ezuUwQCGALBx1mkoe",
+    object: "thread.message.delta",
+    delta: { content: [{ index: 0, type: "text", text: { value: " one" } }] },
+  },
+};

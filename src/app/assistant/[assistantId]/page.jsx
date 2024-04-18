@@ -11,18 +11,7 @@ const Assistant = ({ params: { assistantId } }) => {
   const [threads, setThreads] = useState([]);
   const [thread, setThread] = useState([]);
   const [userInput, setUserInput] = useState("What is the mass of the sun?");
-
-  // const getDataStream = () => {
-  //   const source = new EventSource(`/api/message/${selectedThread}`);
-
-  //   source.onmessage = function (event) {
-  //     console.log("event.data", event.data);
-  //   };
-
-  //   source.onerror = function (event) {
-  //     console.error("An error occurred:", event);
-  //   };
-  // };
+  const [streamingMessage, setStreamingMessage] = useState({});
 
   const convertThreadToMessages = (thread, name) => {
     const messages = thread?.map((message) => {
@@ -75,10 +64,12 @@ const Assistant = ({ params: { assistantId } }) => {
   };
 
   const send = (e) => {
-    fetch(`/api/message/${selectedThread}`, {
+    fetch("/api/assistant_message", {
       method: "POST",
       body: JSON.stringify({
-        userInput: { message: userInput, assistantId },
+        content: userInput,
+        assistantId,
+        threadId: selectedThread,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -88,13 +79,33 @@ const Assistant = ({ params: { assistantId } }) => {
       return new ReadableStream({
         async start(controller) {
           let textChunk = "";
+          let totalMessage = "";
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
             controller.enqueue(value);
             // Process chunk here
-            textChunk += new TextDecoder().decode(value);
+            textChunk = new TextDecoder().decode(value).trim();
 
+            const strServerEvents = textChunk.split("\n");
+            console.log("strServerEvents", strServerEvents);
+            // process each event
+            for (const strServerEvent of strServerEvents) {
+              const serverEvent = JSON.parse(strServerEvent);
+              console.log("serverEvent", serverEvent);
+              let contentSnapshot;
+
+              if (serverEvent.event === "thread.message.delta") {
+                // update streaming message content
+                contentSnapshot += serverEvent.data.delta.content[0].text.value;
+                const newStreamingMessage = {
+                  ...streamingMessage,
+                  content: contentSnapshot,
+                };
+                totalMessage += contentSnapshot.replaceAll("undefined", "");
+                setStreamingMessage(newStreamingMessage);
+              }
+            }
             setMessagesText([
               ...messagesText,
               {
@@ -103,7 +114,7 @@ const Assistant = ({ params: { assistantId } }) => {
               },
               {
                 role: "assistant",
-                content: [{ type: "text", text: textChunk }],
+                content: [{ type: "text", text: totalMessage }],
               },
             ]);
           }
@@ -113,7 +124,6 @@ const Assistant = ({ params: { assistantId } }) => {
         },
       });
     });
-    // getDataStream();
   };
 
   const getMessages = async (threadId) => {

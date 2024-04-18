@@ -9,14 +9,18 @@ export const runtime = "edge";
 
 // post a new message and stream OpenAI Assistant response
 export async function POST(req, res) {
+  console.log(
+    "RECIEVED POST REQUEST RECIEVED POST REQUEST RECIEVED POST REQUEST RECIEVED POST REQUEST"
+  );
   // parse message from post
-  //   const newMessage = await request.json();
-  const newMessage = {
-    threadId: "thread_pfiOyD6riHNIXLal270RDdqz",
-    content: "What is an elephant?",
-    // content: "What is the mass of the sun?",
-    assistantId: "asst_nsN6ZIzVHRtkL89Lwyg1deO4",
-  };
+  const newMessage = await req.json();
+  console.log("newMessage ==>", newMessage);
+  //   const newMessage = {
+  //     threadId: "thread_pfiOyD6riHNIXLal270RDdqz",
+  //     content: "What is an elephant?",
+  //     // content: "What is the mass of the sun?",
+  //     assistantId: "asst_nsN6ZIzVHRtkL89Lwyg1deO4",
+  //   };
 
   // create OpenAI client
   const openai = new OpenAI();
@@ -50,12 +54,3 @@ export async function POST(req, res) {
   return new Response(stream);
   //   return new StreamingTextResponse(stream);
 }
-
-const delta = {
-  event: "thread.message.delta",
-  data: {
-    id: "msg_Z8MR4m5ezuUwQCGALBx1mkoe",
-    object: "thread.message.delta",
-    delta: { content: [{ index: 0, type: "text", text: { value: " one" } }] },
-  },
-};
