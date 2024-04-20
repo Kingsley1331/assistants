@@ -1,8 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
+import { Input } from "@nextui-org/react";
 import axios from "axios";
 import Navigation from "../../components/Navigation";
-import { Input } from "@nextui-org/react";
+import {
+  startRecording,
+  stopRecording,
+  playAudio,
+  sendAudio,
+} from "../../utils/audio";
 
 const Assistant = ({ params: { assistantId } }) => {
   const [messagesText, setMessagesText] = useState([]);
@@ -12,6 +18,9 @@ const Assistant = ({ params: { assistantId } }) => {
   const [thread, setThread] = useState([]);
   const [userInput, setUserInput] = useState("What is the mass of the sun?");
   const [streamingMessage, setStreamingMessage] = useState({});
+  const [recorder, setRecorder] = useState(null);
+  const [disableRecord, setDisableRecord] = useState(false);
+  const [audioBlob, setAudioBlob] = useState(null);
 
   const convertThreadToMessages = (thread, name) => {
     const messages = thread?.map((message) => {
@@ -152,6 +161,16 @@ const Assistant = ({ params: { assistantId } }) => {
     setMessagesText([]);
   }, [selectedThread]);
 
+  useEffect(() => {
+    const handleAudioRecording = async () => {
+      const transcription = await sendAudio(audioBlob, "/api/speech_to_text");
+      setUserInput(transcription);
+    };
+    if (audioBlob) {
+      handleAudioRecording();
+    }
+  }, [audioBlob]);
+
   const renderMessages = (messages) =>
     messages.map((message) => {
       const { content, role, name, id } = message;
@@ -227,6 +246,24 @@ const Assistant = ({ params: { assistantId } }) => {
                 onClick={send}
               >
                 Send
+              </button>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3"
+                onClick={() => startRecording(setAudioBlob, setRecorder)}
+              >
+                Record voice
+              </button>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3"
+                onClick={() => stopRecording(recorder)}
+              >
+                Stop recording
+              </button>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3"
+                onClick={() => playAudio(audioBlob)}
+              >
+                play audio
               </button>
             </div>
           </div>
