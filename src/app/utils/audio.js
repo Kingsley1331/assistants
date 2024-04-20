@@ -32,3 +32,13 @@ export const sendAudio = async (audioBlob, url) => {
 
   return transcription;
 };
+
+export const getAudioReponse = async (text) => {
+  const { data: buffer } = await axios.post(
+    "/api/text_to_speech",
+    { text },
+    { responseType: "arraybuffer" }
+  );
+  console.log("buffer", buffer);
+  return buffer;
+};

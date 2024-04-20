@@ -8,6 +8,7 @@ import {
   stopRecording,
   playAudio,
   sendAudio,
+  getAudioReponse,
 } from "../../utils/audio";
 
 const Assistant = ({ params: { assistantId } }) => {
@@ -20,7 +21,9 @@ const Assistant = ({ params: { assistantId } }) => {
   const [streamingMessage, setStreamingMessage] = useState({});
   const [recorder, setRecorder] = useState(null);
   const [disableRecord, setDisableRecord] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
+  const [audioBuffer, setAudioBuffer] = useState(null);
 
   const convertThreadToMessages = (thread, name) => {
     const messages = thread?.map((message) => {
@@ -127,7 +130,7 @@ const Assistant = ({ params: { assistantId } }) => {
               },
             ]);
           }
-
+          getAudio(totalMessage);
           controller.close();
           reader.releaseLock();
         },
@@ -170,6 +173,13 @@ const Assistant = ({ params: { assistantId } }) => {
       handleAudioRecording();
     }
   }, [audioBlob]);
+
+  const getAudio = async (text) => {
+    const arrayBuffer = await getAudioReponse(text);
+    let blob = new Blob([arrayBuffer], { type: "audio/mpeg" });
+
+    playAudio(blob);
+  };
 
   const renderMessages = (messages) =>
     messages.map((message) => {
@@ -232,40 +242,45 @@ const Assistant = ({ params: { assistantId } }) => {
             </h1>
             {renderMessages(convertThreadToMessages(thread, assistant.name))}
             {renderMessages(messagesText)}
-            <div className="flex items-center justify-center w-full mt-32">
-              <Input
-                // style={{ width: "100%" }}
-                onChange={handleChange}
-                type="text"
-                value={userInput}
-                placeholder="Please ask anything you want"
-                className="w-full"
-              />
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3"
-                onClick={send}
-              >
-                Send
-              </button>
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3"
-                onClick={() => startRecording(setAudioBlob, setRecorder)}
-              >
-                Record voice
-              </button>
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3"
-                onClick={() => stopRecording(recorder)}
-              >
-                Stop recording
-              </button>
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3"
-                onClick={() => playAudio(audioBlob)}
-              >
-                play audio
-              </button>
-            </div>
+            {selectedThread && (
+              <div className="flex items-center justify-center w-full mt-32">
+                <Input
+                  // style={{ width: "100%" }}
+                  onChange={handleChange}
+                  type="text"
+                  value={userInput}
+                  placeholder="Please ask anything you want"
+                  className="w-full"
+                />
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3"
+                  onClick={send}
+                >
+                  Send
+                </button>
+                <button
+                  className={` text-white font-bold py-2 px-4 borderrounded m-3 ${!isRecording ? "bg-blue-500 border-blue-700 hover:bg-blue-700" : "bg-red-500 border-red-700 hover:bg-red-700"}`}
+                  onClick={() => {
+                    startRecording(setAudioBlob, setRecorder);
+                    setIsRecording(true);
+                  }}
+                >
+                  <span className={`${isRecording ? "invisible" : "visible"}`}>
+                    Start recording
+                  </span>
+                </button>
+                <button
+                  className={`bg-blue-500 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3 ${!isRecording ? "opacity-20" : "hover:bg-blue-700"}`}
+                  onClick={() => {
+                    stopRecording(recorder);
+                    setIsRecording(false);
+                  }}
+                  disabled={!isRecording}
+                >
+                  Stop recording
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
