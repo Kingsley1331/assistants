@@ -3,7 +3,7 @@ import OpenAI from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// const runtime = "edge";
+const runtime = "edge";
 // const text = ""The quick brown fox jumps over the lazy dog, not once but twice"";
 const textToSpeech = async (text) => {
   console.log(
