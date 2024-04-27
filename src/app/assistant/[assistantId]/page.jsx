@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Input } from "@nextui-org/react";
 import axios from "axios";
 import Navigation from "../../components/Navigation";
@@ -10,6 +11,9 @@ import {
   sendAudio,
   getAudioReponse,
 } from "../../utils/audio";
+import Microphone from "../../components/icons/microphone.js";
+import SendIcon from "../../components/icons/send.js";
+import close from "../../components/icons/close.png";
 
 const Assistant = ({ params: { assistantId } }) => {
   const [messagesText, setMessagesText] = useState([]);
@@ -23,7 +27,7 @@ const Assistant = ({ params: { assistantId } }) => {
   const [disableRecord, setDisableRecord] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
-  const [audioBuffer, setAudioBuffer] = useState(null);
+  const [loadingResponse, setLoadingResponse] = useState(false);
 
   const convertThreadToMessages = (thread, name) => {
     const messages = thread?.map((message) => {
@@ -88,8 +92,10 @@ const Assistant = ({ params: { assistantId } }) => {
       },
     }).then((response) => {
       const reader = response.body.getReader();
+      setLoadingResponse(true);
       return new ReadableStream({
         async start(controller) {
+          setLoadingResponse(false);
           let textChunk = "";
           let totalMessage = "";
           while (true) {
@@ -199,16 +205,16 @@ const Assistant = ({ params: { assistantId } }) => {
     <>
       <Navigation />
       <div className="p-4">
-        <div className="flex relative">
-          <div className="min-w-60">
-            <table>
+        <div className="flex relative h-full">
+          <div className="min-w-60 overflow-y-scroll hgt-half scrollbar-webkit">
+            <table className="w-52">
               {threads.map((thread, indx) => (
                 <tr key={thread}>
                   <td
-                    className={`${thread === selectedThread && "bg-slate-200"}`}
+                    className={`${thread === selectedThread && "bg-slate-200"} w-32`}
                   >
                     <div
-                      className={"m-4"}
+                      className={"m-4 text-center"}
                       role="button"
                       onClick={() => {
                         getMessages(thread);
@@ -219,24 +225,25 @@ const Assistant = ({ params: { assistantId } }) => {
                     </div>
                   </td>
                   <td>
-                    <button
+                    <div
+                      className="ml-6"
                       onClick={() => deleteThread(thread)}
-                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
+                      role="button"
                     >
-                      Delete
-                    </button>
+                      <Image width="20" src={close} alt="close" />
+                    </div>
                   </td>
                 </tr>
               ))}
             </table>
             <button
               onClick={startNewChat}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded mt-4"
             >
               Start new chat
             </button>
           </div>
-          <div className="w-10/12">
+          <div className="w-10/12 pl-6">
             <h1 className="mb-8 mt-4 text-2xl text-center">
               {assistant?.name}
             </h1>
@@ -252,33 +259,33 @@ const Assistant = ({ params: { assistantId } }) => {
                   placeholder="Please ask anything you want"
                   className="w-full"
                 />
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3"
-                  onClick={send}
-                >
-                  Send
-                </button>
-                <button
-                  className={` text-white font-bold py-2 px-4 borderrounded m-3 ${!isRecording ? "bg-blue-500 border-blue-700 hover:bg-blue-700" : "bg-red-500 border-red-700 hover:bg-red-700"}`}
-                  onClick={() => {
-                    startRecording(setAudioBlob, setRecorder);
-                    setIsRecording(true);
-                  }}
-                >
-                  <span className={`${isRecording ? "invisible" : "visible"}`}>
-                    Start recording
-                  </span>
-                </button>
-                <button
-                  className={`bg-blue-500 text-white font-bold py-2 px-4 border border-blue-700 rounded m-3 ${!isRecording ? "opacity-20" : "hover:bg-blue-700"}`}
-                  onClick={() => {
-                    stopRecording(recorder);
-                    setIsRecording(false);
-                  }}
-                  disabled={!isRecording}
-                >
-                  Stop recording
-                </button>
+                <div onClick={send} role="button" className="w-9 ml-4">
+                  <SendIcon opacity={userInput && !loadingResponse ? 1 : 0.4} />
+                </div>
+
+                {disableRecord ? (
+                  <div
+                    className="w-8 h-8 bg-red-500 border-red-700 rounded-full"
+                    onClick={() => {
+                      stopRecording(recorder);
+                      setIsRecording(false);
+                      setDisableRecord(false);
+                    }}
+                  />
+                ) : (
+                  <div
+                    className={"w-9"}
+                    role="button"
+                    disabled
+                    onClick={() => {
+                      startRecording(setAudioBlob, setRecorder);
+                      setIsRecording(true);
+                      setDisableRecord(true);
+                    }}
+                  >
+                    <Microphone />
+                  </div>
+                )}
               </div>
             )}
           </div>
