@@ -53,7 +53,11 @@ const Assistant = ({ params: { assistantId } }) => {
     console.log("startNewChat");
     axios.post(`/api/create_chat/${assistantId}`).then(({ data }) => {
       const threadId = data.message.id;
-      setThreads([...threads, threadId]);
+      if (!threads.length) {
+        setThreads([threadId]);
+      } else {
+        setThreads([...threads, threadId]);
+      }
       console.log("NEW THREAD ==>", data);
       getMessages(threadId);
       setSelectedThread(threadId);
@@ -162,7 +166,9 @@ const Assistant = ({ params: { assistantId } }) => {
       const { assistant, threads } = data;
       console.log("get data ==>", data);
       setAssistant(assistant);
-      setThreads(threads);
+      if (threads) {
+        setThreads(threads);
+      }
     });
   }, [assistantId]);
 
@@ -188,7 +194,7 @@ const Assistant = ({ params: { assistantId } }) => {
   };
 
   const renderMessages = (messages) =>
-    messages.map((message) => {
+    messages?.map((message) => {
       const { content, role, name, id } = message;
       const text = typeof content === "string" ? content : content[0]?.text;
       return (
@@ -208,7 +214,7 @@ const Assistant = ({ params: { assistantId } }) => {
         <div className="flex relative h-full">
           <div className="min-w-60 overflow-y-scroll hgt-half scrollbar-webkit">
             <table className="w-52">
-              {threads.map((thread, indx) => (
+              {threads?.map((thread, indx) => (
                 <tr key={thread}>
                   <td
                     className={`${thread === selectedThread && "bg-slate-200"} w-32`}
