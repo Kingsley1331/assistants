@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import Image from "next/image";
 import { Input } from "@nextui-org/react";
 import axios from "axios";
@@ -238,13 +239,13 @@ const Assistant = ({ params: { assistantId } }) => {
         .map((d) => d[0].split("language-")[1])
         .join(", ");
 
-      ReactDOM.render(
+      const root = createRoot(sendIconContainer);
+      root.render(
         <Clipboard
           language={lang}
           className="clipboard-icon"
           copyToClipboard={copyToClipboard}
-        />,
-        sendIconContainer
+        />
       );
 
       if (!doesIconContainerAlreadyExist(index)) {
