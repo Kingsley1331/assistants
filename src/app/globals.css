@@ -35,3 +35,70 @@ body {
 }
 
 /* https://tailwindcomponents.com/cheatsheet/ */
+
+.clipboard-icon-container {
+  position: relative;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  background-color: #343541;
+  border-radius: 10px 10px 0 0;
+}
+
+.clipboard-icon-container div {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #343541;
+  position: relative;
+  color: #d9d9e3;
+  padding: 6px 0;
+  cursor: pointer;
+  border-radius: 10px 10px 0 0;
+}
+
+.clipboard-icon-container p {
+  margin: 0 15px 0 8px;
+}
+
+.clipboard-icon {
+  /* position: relative; */
+  background-color: wheat;
+  position: absolute;
+  cursor: pointer;
+}
+
+.clipboard-icon > .language {
+  margin-left: 15px;
+}
+
+div.copy-wrapper {
+  width: fit-content;
+}
+
+.icon-sm.--inactive {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.hljs {
+  background: white;
+  padding: 10px;
+  border-radius: 0 0 10px 10px;
+}
+
+pre code.hljs {
+  background: black;
+  padding: 10px;
+  border-radius: 0 0 10px 10px;
+}
+
+/*Revert the effects of tailwind.css https://stackoverflow.com/questions/74607419/react-markdown-don%C2%B4t-render-markdown */
+.markdown > * {
+  all: revert;
+}
+
+.chat_name {
+  margin-bottom: -15px;
+}
