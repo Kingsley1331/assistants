@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import Image from "next/image";
 import { Input } from "@nextui-org/react";
 import axios from "axios";
@@ -11,9 +12,14 @@ import {
   sendAudio,
   getAudioReponse,
 } from "../../utils/audio";
+import MarkdownRenderer from "../../tools/MarkdownRenderer";
+import hljs from "highlight.js";
 import Microphone from "../../components/icons/microphone.js";
 import SendIcon from "../../components/icons/send.js";
 import close from "../../components/icons/close.png";
+import Clipboard from "../../components/icons/clipboard.js";
+import "highlight.js/styles/github.css";
+import "highlight.js/styles/felipec.css";
 
 const Assistant = ({ params: { assistantId } }) => {
   const [messagesText, setMessagesText] = useState([]);
@@ -66,11 +72,11 @@ const Assistant = ({ params: { assistantId } }) => {
 
   const deleteThread = (threadId) => {
     const deleteThread = window.confirm(
-      "Are you sure you want to delete this thread?"
+      "Are you sure you want to delete this chat?"
     );
 
     if (deleteThread) {
-      console.log("delete thread");
+      console.log("delete chat");
       axios
         .delete(`/api/delete_chat/${assistantId}`, {
           data: { threadId: threadId },
@@ -186,6 +192,67 @@ const Assistant = ({ params: { assistantId } }) => {
     }
   }, [audioBlob]);
 
+  const copyToClipboard = (e) => {
+    // e.preventDefault();
+    const element =
+      e.target.parentElement.parentElement.parentElement.parentElement.querySelectorAll(
+        "code"
+      )[0];
+
+    if (!element) {
+      return;
+    }
+    const text = element.innerText;
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        // You can add some notification code here to alert the user that text has been copied
+        console.log("Text copied to clipboard");
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  };
+
+  useEffect(() => {
+    hljs.highlightAll();
+
+    const highlights = document.querySelectorAll("pre");
+    console.log("highlights", highlights);
+
+    const doesIconContainerAlreadyExist = (idx) =>
+      document.querySelectorAll(`.clipboard-icon-container_${idx}`).length;
+
+    highlights.forEach((div, index) => {
+      const sendIconContainer = document.createElement("div");
+
+      sendIconContainer.className = `clipboard-icon-container clipboard-icon-container_${index}`;
+
+      const lang = div
+        .querySelectorAll("code")[0]
+        .className.split(" ")
+        .map((a) => a)
+        .map((b) => b.match(/language-.*/))
+        .filter((c) => c)
+        .map((d) => d[0].split("language-")[1])
+        .join(", ");
+
+      ReactDOM.render(
+        <Clipboard
+          language={lang}
+          className="clipboard-icon"
+          copyToClipboard={copyToClipboard}
+        />,
+        sendIconContainer
+      );
+
+      if (!doesIconContainerAlreadyExist(index)) {
+        div.prepend(sendIconContainer);
+      }
+    });
+  });
+
   const getAudio = async (text) => {
     const arrayBuffer = await getAudioReponse(text);
     let blob = new Blob([arrayBuffer], { type: "audio/mpeg" });
@@ -198,11 +265,11 @@ const Assistant = ({ params: { assistantId } }) => {
       const { content, role, name, id } = message;
       const text = typeof content === "string" ? content : content[0]?.text;
       return (
-        <div key={id}>
-          <h3>
-            <strong>{role}</strong>
+        <div key={id} className="markdown">
+          <h3 className="chat_name">
+            <strong>{role === "user" ? "User" : name}</strong>
           </h3>
-          <p>{text}</p>
+          <MarkdownRenderer content={text} />
         </div>
       );
     });
@@ -227,7 +294,7 @@ const Assistant = ({ params: { assistantId } }) => {
                         setSelectedThread(thread);
                       }}
                     >
-                      <span className=" p-1">{`Thread ${indx + 1}`}</span>
+                      <span className=" p-1">{`Chat ${indx + 1}`}</span>
                     </div>
                   </td>
                   <td>
