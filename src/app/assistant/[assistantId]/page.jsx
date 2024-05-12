@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import Image from "next/image";
 import { Input } from "@nextui-org/react";
@@ -317,14 +316,18 @@ const Assistant = ({ params: { assistantId } }) => {
               Start new chat
             </button>
           </div>
-          <div className="w-10/12 pl-6">
+          <div className="w-2/3 h-96 pl-6">
             <h1 className="mb-8 mt-4 text-2xl text-center">
               {assistant?.name}
             </h1>
-            {renderMessages(convertThreadToMessages(thread, assistant.name))}
-            {renderMessages(messagesText)}
+            <div className="chat_window">
+              {/* <div className="w-full h-full border-4 border-solid overflow-scroll"> */}
+              {renderMessages(convertThreadToMessages(thread, assistant.name))}
+              {renderMessages(messagesText)}
+            </div>
+
             {selectedThread && (
-              <div className="flex items-center justify-center w-full mt-32">
+              <div className="flex items-center justify-center fixed bottom-4 w-2/3">
                 <Input
                   // style={{ width: "100%" }}
                   onChange={handleChange}
